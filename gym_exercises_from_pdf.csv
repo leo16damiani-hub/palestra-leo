@@ -1,0 +1,42 @@
+group,exercise,sets,reps,weight,video_query,variants
+Petto,Chest press,5,10,80,chest press esecuzione,Pectoral|Panca con manubri|Distensioni con manubri
+Petto,Croci ai cavi,4,15,15/17.5,croci ai cavi esecuzione,Croci al cavo alto|Croci al cavo basso|Croci
+Petto,Panca inclinata,5,10,24,panca inclinata esecuzione,Panca inclinata machine|Panca inclinata con manubri|Panca inclinata bilanciere
+Petto,Panca piana,4,10,90/100,panca piana bilanciere esecuzione,Panca piana con manubri|Distensioni con manubri|Chest press
+Petto,Pectoral,3,12,45,pectoral machine esecuzione,Chest press|Croci ai cavi
+Bicipiti,Curl con manubri,4,10,14,curl con manubri esecuzione,Curl con asta EZ|Panca scoot|Curl classico
+Bicipiti,Curl martello al cavo basso,5,10,12,curl martello al cavo basso esecuzione,Martelli con manubri|Manubrio zeta|Hammer curl rope
+Bicipiti,Panca scoot,4,10,30,panca scoot curl esecuzione,Curl con asta EZ|Curl con manubri
+Spalle,Alzate al mento,4,10,17.5,alzate al mento esecuzione,Alzate frontali|Rematore verticale
+Spalle,Alzate frontali,4,12,17.5,alzate frontali esecuzione,Alzate laterali|Alzate al mento
+Spalle,Alzate laterali,4,12,10,alzate laterali esecuzione,Alzate laterali al cavo basso|Alzate laterali da seduto|Alzate frontali
+Spalle,Military press,4,8,18,military press esecuzione,Shoulder press|Spinte con manubri|Lento avanti
+Spalle,Shoulder press,4,5+5+5,35,shoulder press esecuzione,Military press|Spinte con manubri|Multipower lento avanti
+Spalle,Spinte con manubri,5,12,30/20 note,spinte con manubri spalle esecuzione,Shoulder press|Military press|Lento avanti
+Dorso,Lat machine,5,10,60/70,lat machine esecuzione,Lat machine con triangolo|Lat machine inversa|Pull down
+Dorso,Lat machine inversa,5,10,60,lat machine inversa esecuzione,Lat machine|Lat machine con triangolo
+Dorso,Low row,4,10,30,low row esecuzione,Low row su panca|Rematore con manubrio|Rematore macchina
+Dorso,Low row su panca,4,10,30,low row su panca esecuzione,Low row|Rematore manubrio
+Dorso,Pulley,5,10,65,pulley esecuzione,Rematore al cavo alto|Low row|Palley 70kg note
+Dorso,Rematore al cavo alto,4,10,22.5,rematore al cavo alto esecuzione,Pulley|Low row
+Dorso,Rematore con bilanciere,4,8,70,rematore con bilanciere esecuzione,Rematore con manubrio|Low row
+Dorso,Rematore con manubrio,4,8,34,rematore con manubrio esecuzione,Rematore con bilanciere|Low row
+Dorso,Trazioni,5,5,corpo libero,trazioni esecuzione,Lat machine|Pull down|Trazioni assistite
+Tricipiti,Dip,4,12,corpo libero,dip tricipiti esecuzione,Push down|French press al cavo alto con corda|Panca stretta
+Tricipiti,French press al cavo alto con corda,4,10,30,french press al cavo alto con corda esecuzione,French press con manubri|French press al cavo asta presa inversa|Push down
+Tricipiti,French press al cavo asta,4,8,presa inversa,french press al cavo asta presa inversa esecuzione,French press con manubri|French press corda
+Tricipiti,French press con manubri,4,10,14,french press con manubri esecuzione,French press al cavo alto con corda|Push down
+Tricipiti,Push down,4,10,20/15,push down tricipiti esecuzione,Dip|French press al cavo alto con corda
+Gambe,Abductor machine,4,12,65,abductor machine esecuzione,Glute machine|Cable hip abduction|Monster walk
+Gambe,Leg curl,5,10,35,leg curl esecuzione,Leg curl 30kg note|Stacchi a gambe tese|Leg curl seated
+Gambe,Leg extension,5,10,35,leg extension esecuzione,Leg extension 45kg note|Leg curl|Sissy squat
+Gambe,Leg press,5,8,120,leg press esecuzione,Pressa 190kg note|Squat con bilanciere|Affondi
+Gambe,Squat con bilanciere,5,8,80,squat con bilanciere esecuzione,Squat 90kg note|Leg press|Stacchi a gambe tese
+Gambe,Stacchi a gambe tese,5,8,60 note,stacchi a gambe tese esecuzione,Romanian deadlift|Leg curl|Good morning
+Addome,Addome completo,3,12,corpo libero,addome completo esercizio,Crunch|Leg raises|Plank
+Addome,Crunch con fermo,4,30,corpo libero,crunch addome esecuzione,Addome completo|Leg raises|Side to side
+Addome,Leg raises,3,15,corpo libero,leg raises esecuzione,Crunch|Plank|Reverse crunch
+Addome,Plank,3,1 min,corpo libero,plank esecuzione,Side plank|Body saw|RKC plank
+Addome,Side to side,3,20 per lato,corpo libero,side to side addome esecuzione,Russian twist|Crunch|Plank
+Polpacci,Calf in piedi,5,10,20,calf in piedi esecuzione,Calf seduto|Smith calf raise|Calf libero
+Polpacci,Calf seduto,5,10,15,calf seduto esecuzione,Calf in piedi|Calf su pressa|Donkey calf raise
