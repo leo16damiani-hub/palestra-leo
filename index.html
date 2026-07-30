@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gym Tracker Smart</title>
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&f[]=clash-display@500,600,700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&f[]=clash-display@500,600,700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <style>
     :root {
@@ -21,72 +21,421 @@
       --green: #64e6a3;
       --orange: #ffb85c;
       --red: #ff6f8c;
-      --shadow: 0 10px 34px rgba(0,0,0,.34), 0 0 0 1px rgba(0,212,255,.08), 0 0 28px rgba(122,92,255,.12);
+      --shadow: 0 10px 34px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(0, 212, 255, 0.08), 0 0 28px rgba(122, 92, 255, 0.12);
       --r: 18px;
       --r2: 14px;
       --gap: 16px;
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background:
-      radial-gradient(circle at 10% 0%, rgba(0,212,255,.16), transparent 20%),
-      radial-gradient(circle at 100% 10%, rgba(255,84,201,.14), transparent 22%),
-      linear-gradient(180deg, var(--bg2), var(--bg)); color: var(--text); font-family: 'Satoshi', system-ui, sans-serif; }
-    body { max-width: 1100px; margin: 0 auto; }
-    button, input, select { font: inherit; }
-    a { color: var(--primary); }
-    .topbar { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 16px; backdrop-filter: blur(16px); background: rgba(7,16,31,.72); border-bottom: 1px solid var(--line); }
-    .brand { display: flex; gap: 12px; align-items: center; }
-    .logo { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary), var(--pink)); box-shadow: var(--shadow); }
-    h1,h2,h3 { margin: 0; font-family: 'Clash Display', 'Satoshi', sans-serif; }
-    .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-    .main { padding: 16px; padding-bottom: 88px; }
-    .section { display: none; gap: 16px; }
-    .section.active { display: grid; }
-    .hero, .card, .modal-card { background: linear-gradient(180deg, rgba(18,31,63,.98), rgba(10,19,41,.96)); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px; }
-    .hero, .card { text-align: center; }
-    .hero h2 { font-size: clamp(28px, 3vw, 42px); margin: 8px 0 6px; }
-    .muted { color: var(--muted); }
-    .chip { display: inline-flex; margin: 0 auto; padding: 8px 12px; border-radius: 999px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--primary); background: linear-gradient(90deg, rgba(0,212,255,.14), rgba(122,92,255,.18)); }
-    .actions, .center { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
-    .btn { border: none; color: white; cursor: pointer; min-height: 44px; padding: 10px 14px; border-radius: 14px; background: linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow: 0 0 20px rgba(0,212,255,.16); }
-    .btn.alt { background: linear-gradient(90deg, var(--secondary), var(--pink)); }
-    .btn.ghost { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; }
-    .stat { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
-    .stat .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-    .stat .v { font-size: 28px; font-weight: 700; margin-top: 8px; }
-    .days { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 8px; }
-    .day-btn { min-height: 52px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.03); color: var(--text); cursor: pointer; }
-    .day-btn.active { background: linear-gradient(90deg, rgba(0,212,255,.18), rgba(122,92,255,.20)); border-color: rgba(0,212,255,.42); }
-    .list { display: grid; gap: 12px; }
-    .exercise-card { background: linear-gradient(180deg, rgba(16,28,59,.98), rgba(10,18,37,.98)); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 12px; }
-    .exercise-head { display: grid; grid-template-columns: 86px 1fr; gap: 14px; align-items: center; text-align: left; }
-    .exercise-head h4 { margin: 0 0 4px; font-size: 18px; }
-    .exercise-meta { color: var(--muted); font-size: 14px; }
-    .thumb { width: 86px; height: 86px; border-radius: 16px; border: 1px solid rgba(255,255,255,.12); background: #0a1326; object-fit: cover; }
-    .exercise-actions, .mini-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .field-grid { display: grid; grid-template-columns: 1.5fr .7fr .8fr .8fr; gap: 8px; }
-    .field-grid input, .modal-card input, .modal-card select, .search { width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(6,12,25,.88); color: var(--text); padding: 10px 12px; }
-    .chart-card canvas { max-height: 280px; }
-    .overlay { position: fixed; inset: 0; background: rgba(2,7,18,.62); backdrop-filter: blur(6px); display: none; z-index: 20; }
-    .overlay.active { display: block; }
-    .modal { position: fixed; inset: 0; display: none; place-items: center; z-index: 30; padding: 16px; }
-    .modal.active { display: grid; }
-    .modal-card { width: min(920px, 100%); max-height: 86vh; overflow: auto; text-align: left; }
-    .modal-grid { display: grid; grid-template-columns: 210px 1fr; gap: 18px; }
-    .variants { display: grid; gap: 8px; margin-top: 12px; }
-    .variant-btn { width: 100%; text-align: center; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.03); color: var(--text); cursor: pointer; }
-    .variant-btn:hover { border-color: rgba(0,212,255,.5); }
-    .bottom-nav { position: fixed; left: 50%; transform: translateX(-50%); bottom: 10px; width: min(980px, calc(100vw - 16px)); display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: rgba(8,14,30,.86); backdrop-filter: blur(18px); z-index: 40; }
-    .nav-btn { min-height: 56px; border: none; border-radius: 14px; background: transparent; color: var(--muted); cursor: pointer; }
-    .nav-btn.active { background: linear-gradient(90deg, rgba(0,212,255,.12), rgba(122,92,255,.18)); color: var(--primary); font-weight: 700; }
-    .note { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(0, 212, 255, 0.16), transparent 20%),
+        radial-gradient(circle at 100% 10%, rgba(255, 84, 201, 0.14), transparent 22%),
+        linear-gradient(180deg, var(--bg2), var(--bg));
+      color: var(--text);
+      font-family: 'Satoshi', system-ui, sans-serif;
+    }
+
+    body {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    a {
+      color: var(--primary);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      backdrop-filter: blur(16px);
+      background: rgba(7, 16, 31, 0.72);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--pink));
+      box-shadow: var(--shadow);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: 'Clash Display', 'Satoshi', sans-serif;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .main {
+      padding: 16px;
+      padding-bottom: 88px;
+    }
+
+    .section {
+      display: none;
+      gap: 16px;
+    }
+
+    .section.active {
+      display: grid;
+    }
+
+    .hero,
+    .card,
+    .modal-card {
+      background: linear-gradient(180deg, rgba(18, 31, 63, 0.98), rgba(10, 19, 41, 0.96));
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .hero,
+    .card {
+      text-align: center;
+    }
+
+    .hero h2 {
+      font-size: clamp(28px, 3vw, 42px);
+      margin: 8px 0 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .chip {
+      display: inline-flex;
+      margin: 0 auto;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--primary);
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.14), rgba(122, 92, 255, 0.18));
+    }
+
+    .actions,
+    .center {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      color: white;
+      cursor: pointer;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.16);
+    }
+
+    .btn.alt {
+      background: linear-gradient(90deg, var(--secondary), var(--pink));
+    }
+
+    .btn.ghost {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .done-btn.is-done {
+      background: linear-gradient(90deg, #1dbf73, #64e6a3);
+      color: #06120b;
+      box-shadow: 0 0 0 2px rgba(100, 230, 163, 0.25), 0 0 18px rgba(29, 191, 115, 0.35);
+    }
+
+    .skip-btn {
+      background: linear-gradient(90deg, #ff6f8c, #ff8a00);
+      color: #07101f;
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat .k {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat .v {
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .day-btn {
+      min-height: 52px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .day-btn.active {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.18), rgba(122, 92, 255, 0.20));
+      border-color: rgba(0, 212, 255, 0.42);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .exercise-card {
+      background: linear-gradient(180deg, rgba(16, 28, 59, 0.98), rgba(10, 18, 37, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .exercise-head {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 14px;
+      align-items: center;
+      text-align: left;
+    }
+
+    .exercise-head h4 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .exercise-meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .thumb {
+      width: 86px;
+      height: 86px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0a1326;
+      object-fit: cover;
+    }
+
+    .exercise-actions,
+    .mini-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 0.7fr 0.8fr 0.8fr;
+      gap: 8px;
+    }
+
+    .field-grid input,
+    .modal-card input,
+    .modal-card select,
+    .search {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(6, 12, 25, 0.88);
+      color: var(--text);
+      padding: 10px 12px;
+    }
+
+    .chart-card canvas {
+      max-height: 280px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 7, 18, 0.62);
+      backdrop-filter: blur(6px);
+      display: none;
+      z-index: 20;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 30;
+      padding: 16px;
+    }
+
+    .modal.active {
+      display: grid;
+    }
+
+    .modal-card {
+      width: min(920px, 100%);
+      max-height: 86vh;
+      overflow: auto;
+      text-align: left;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 18px;
+    }
+
+    .variants {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .variant-btn {
+      width: 100%;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .variant-btn:hover {
+      border-color: rgba(0, 212, 255, 0.5);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 10px;
+      width: min(980px, calc(100vw - 16px));
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(8, 14, 30, 0.86);
+      backdrop-filter: blur(18px);
+      z-index: 40;
+    }
+
+    .nav-btn {
+      min-height: 56px;
+      border: none;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.12), rgba(122, 92, 255, 0.18));
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     @media (max-width: 760px) {
-      .grid-2, .grid-4, .field-grid, .modal-grid { grid-template-columns: 1fr; }
-      .days { grid-template-columns: repeat(4, minmax(0,1fr)); }
-      .exercise-head { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-      .bottom-nav { bottom: 6px; }
+      .grid-2,
+      .grid-4,
+      .field-grid,
+      .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .days {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .exercise-head {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .bottom-nav {
+        bottom: 6px;
+      }
     }
   </style>
 </head>
@@ -102,22 +451,29 @@
     <button class="btn ghost" id="themeInfoBtn" type="button">Modalità smart</button>
   </header>
 
-  <main class="main"><div id="completionBanner" class="card" style="display:none; margin-bottom:16px; text-align:center; padding:14px;"><strong id="completionBannerText">Bravo hai completato l'allenamento!</strong></div>
+  <main class="main">
+    <div id="completionBanner" class="card" style="display: none; margin-bottom: 16px; text-align: center; padding: 14px;">
+      <strong id="completionBannerText">Bravo hai completato l'allenamento!</strong>
+    </div>
+
     <section class="section active" id="view-today">
       <div class="hero">
         <div class="chip" id="todayChip">Oggi</div>
         <h2 id="todayTitle"></h2>
-        <p class="muted" id="todayFocus"></p><p class="note">✓ = completato · × = alternativa</p>
-        <div class="actions" style="margin-top:14px;">
+        <p class="muted" id="todayFocus"></p>
+        <p class="note">✓ = completato · × = alternativa</p>
+        <div class="actions" style="margin-top: 14px;">
           <button class="btn" type="button" id="completeBtn">Segna sessione</button>
           <button class="btn alt" type="button" id="addTodayBtn">+ Aggiungi esercizio</button>
         </div>
       </div>
+
       <div class="card">
         <h3>Giorno allenamento</h3>
         <p class="muted">Puoi cambiare il giorno e modificare ogni esercizio in modo diretto.</p>
         <div class="days" id="days"></div>
       </div>
+
       <div class="card">
         <h3>Esercizi del giorno</h3>
         <p class="muted">Apri un esercizio per cambiare peso, ripetizioni, serie, video o sostituirlo con una variante.</p>
@@ -131,7 +487,11 @@
         <h2>Editor completo</h2>
         <p class="muted">Da qui puoi intervenire su tutti i giorni della settimana e aggiungere nuovi esercizi.</p>
       </div>
-      <div class="center"><button class="btn alt" type="button" id="addPlanBtn">+ Aggiungi al giorno selezionato</button></div>
+
+      <div class="center">
+        <button class="btn alt" type="button" id="addPlanBtn">+ Aggiungi al giorno selezionato</button>
+      </div>
+
       <div class="list" id="planList"></div>
     </section>
 
@@ -141,18 +501,21 @@
         <h2>Progressi reali della scheda</h2>
         <p class="muted">I grafici usano i carichi e il volume della tua scheda corrente, non valori finti.</p>
       </div>
+
       <div class="grid-4">
         <div class="stat"><div class="k">Progressione media</div><div class="v" id="statProgress">0%</div></div>
         <div class="stat"><div class="k">Sessioni</div><div class="v" id="statSessions">0</div></div>
         <div class="stat"><div class="k">In crescita</div><div class="v" id="statGrowth">0</div></div>
         <div class="stat"><div class="k">Volume</div><div class="v" id="statVolume">0</div></div>
       </div>
+
       <div class="grid-2">
         <div class="card chart-card"><h3>Carichi attuali</h3><canvas id="chartWeights"></canvas></div>
         <div class="card chart-card"><h3>Volume per gruppo</h3><canvas id="chartGroups"></canvas></div>
         <div class="card chart-card"><h3>Settimana volume</h3><canvas id="chartWeek"></canvas></div>
         <div class="card chart-card"><h3>Baseline vs attuale</h3><canvas id="chartCompare"></canvas></div>
       </div>
+
       <div class="card">
         <h3>Lettura rapida</h3>
         <div class="note" id="analysisNote"></div>
@@ -165,29 +528,34 @@
         <h2>Tutti gli esercizi del PDF</h2>
         <p class="muted">Puoi cercare un esercizio e usarlo per sostituire o aggiungere elementi alla scheda.</p>
       </div>
+
       <div class="card">
         <h3>Cerca esercizio</h3>
         <input class="search" type="search" id="searchInput" placeholder="Cerca per nome o gruppo muscolare" />
       </div>
+
       <div class="list" id="libraryList"></div>
     </section>
   </main>
 
   <div class="overlay" id="overlay"></div>
+
   <div class="modal" id="editorModal">
     <div class="modal-card">
-      <div class="center" style="justify-content:space-between; margin-bottom: 12px;">
+      <div class="center" style="justify-content: space-between; margin-bottom: 12px;">
         <h3 id="modalTitle">Modifica esercizio</h3>
         <button class="btn ghost" type="button" id="closeModalBtn">Chiudi</button>
       </div>
+
       <div class="modal-grid">
         <div>
-          <img class="thumb" id="modalImage" alt="Immagine esercizio" style="width:100%; height:auto; aspect-ratio:1/1;" />
+          <img class="thumb" id="modalImage" alt="Immagine esercizio" style="width: 100%; height: auto; aspect-ratio: 1 / 1;" />
           <div class="actions" style="margin-top: 12px;">
             <a class="btn" id="modalVideo" target="_blank" rel="noopener noreferrer">Video</a>
             <a class="btn alt" id="modalImages" target="_blank" rel="noopener noreferrer">Immagini</a>
           </div>
         </div>
+
         <div>
           <div class="field-grid">
             <input id="fieldName" placeholder="Nome esercizio" />
@@ -195,15 +563,18 @@
             <input id="fieldReps" placeholder="Rep" />
             <input id="fieldWeight" type="number" min="0" step="0.5" placeholder="Kg" />
           </div>
-          <div class="field-grid" style="margin-top:10px; grid-template-columns: 1fr 1fr;">
+
+          <div class="field-grid" style="margin-top: 10px; grid-template-columns: 1fr 1fr;">
             <select id="fieldGroup"></select>
             <select id="fieldSwap"></select>
           </div>
-          <div class="actions" style="margin-top: 12px; justify-content:flex-start;">
+
+          <div class="actions" style="margin-top: 12px; justify-content: flex-start;">
             <button class="btn" type="button" id="saveExerciseBtn">Salva modifiche</button>
             <button class="btn alt" type="button" id="swapExerciseBtn">Cambia esercizio</button>
             <button class="btn ghost" type="button" id="removeExerciseBtn">Rimuovi</button>
           </div>
+
           <div class="variants">
             <div class="note"><strong>Alternative:</strong> clicca una variante per sostituire subito l'esercizio.</div>
             <div id="variantList"></div>
@@ -221,19 +592,63 @@
   </div>
 
   <script>
-    const catalog = [{"group": "Petto", "exercise": "Panca piana", "sets": "4", "reps": "10", "weight": "90/100", "video_query": "panca piana bilanciere esecuzione", "variants": "Panca piana con manubri|Distensioni con manubri|Chest press"}, {"group": "Petto", "exercise": "Panca inclinata", "sets": "5", "reps": "10", "weight": "24", "video_query": "panca inclinata esecuzione", "variants": "Panca inclinata machine|Panca inclinata con manubri|Panca inclinata bilanciere"}, {"group": "Petto", "exercise": "Chest press", "sets": "5", "reps": "10", "weight": "80", "video_query": "chest press esecuzione", "variants": "Pectoral|Panca con manubri|Distensioni con manubri"}, {"group": "Petto", "exercise": "Croci ai cavi", "sets": "4", "reps": "15", "weight": "15/17.5", "video_query": "croci ai cavi esecuzione", "variants": "Croci al cavo alto|Croci al cavo basso|Croci"}, {"group": "Petto", "exercise": "Pectoral", "sets": "3", "reps": "12", "weight": "45", "video_query": "pectoral machine esecuzione", "variants": "Chest press|Croci ai cavi"}, {"group": "Bicipiti", "exercise": "Curl con manubri", "sets": "4", "reps": "10", "weight": "14", "video_query": "curl con manubri esecuzione", "variants": "Curl con asta EZ|Panca scoot|Curl classico"}, {"group": "Bicipiti", "exercise": "Curl martello al cavo basso", "sets": "5", "reps": "10", "weight": "12", "video_query": "curl martello al cavo basso esecuzione", "variants": "Martelli con manubri|Manubrio zeta|Hammer curl rope"}, {"group": "Bicipiti", "exercise": "Panca scoot", "sets": "4", "reps": "10", "weight": "30", "video_query": "panca scoot curl esecuzione", "variants": "Curl con asta EZ|Curl con manubri"}, {"group": "Spalle", "exercise": "Spinte con manubri", "sets": "5", "reps": "12", "weight": "30/20 note", "video_query": "spinte con manubri spalle esecuzione", "variants": "Shoulder press|Military press|Lento avanti"}, {"group": "Spalle", "exercise": "Shoulder press", "sets": "4", "reps": "5+5+5", "weight": "35", "video_query": "shoulder press esecuzione", "variants": "Military press|Spinte con manubri|Multipower lento avanti"}, {"group": "Spalle", "exercise": "Alzate laterali", "sets": "4", "reps": "12", "weight": "10", "video_query": "alzate laterali esecuzione", "variants": "Alzate laterali al cavo basso|Alzate laterali da seduto|Alzate frontali"}, {"group": "Spalle", "exercise": "Alzate frontali", "sets": "4", "reps": "12", "weight": "17.5", "video_query": "alzate frontali esecuzione", "variants": "Alzate laterali|Alzate al mento"}, {"group": "Spalle", "exercise": "Alzate al mento", "sets": "4", "reps": "10", "weight": "17.5", "video_query": "alzate al mento esecuzione", "variants": "Alzate frontali|Rematore verticale"}, {"group": "Spalle", "exercise": "Military press", "sets": "4", "reps": "8", "weight": "18", "video_query": "military press esecuzione", "variants": "Shoulder press|Spinte con manubri|Lento avanti"}, {"group": "Dorso", "exercise": "Lat machine", "sets": "5", "reps": "10", "weight": "60/70", "video_query": "lat machine esecuzione", "variants": "Lat machine con triangolo|Lat machine inversa|Pull down"}, {"group": "Dorso", "exercise": "Trazioni", "sets": "5", "reps": "5", "weight": "corpo libero", "video_query": "trazioni esecuzione", "variants": "Lat machine|Pull down|Trazioni assistite"}, {"group": "Dorso", "exercise": "Pulley", "sets": "5", "reps": "10", "weight": "65", "video_query": "pulley esecuzione", "variants": "Rematore al cavo alto|Low row|Palley 70kg note"}, {"group": "Dorso", "exercise": "Rematore al cavo alto", "sets": "4", "reps": "10", "weight": "22.5", "video_query": "rematore al cavo alto esecuzione", "variants": "Pulley|Low row"}, {"group": "Dorso", "exercise": "Low row", "sets": "4", "reps": "10", "weight": "30", "video_query": "low row esecuzione", "variants": "Low row su panca|Rematore con manubrio|Rematore macchina"}, {"group": "Dorso", "exercise": "Low row su panca", "sets": "4", "reps": "10", "weight": "30", "video_query": "low row su panca esecuzione", "variants": "Low row|Rematore manubrio"}, {"group": "Dorso", "exercise": "Lat machine inversa", "sets": "5", "reps": "10", "weight": "60", "video_query": "lat machine inversa esecuzione", "variants": "Lat machine|Lat machine con triangolo"}, {"group": "Dorso", "exercise": "Rematore con bilanciere", "sets": "4", "reps": "8", "weight": "70", "video_query": "rematore con bilanciere esecuzione", "variants": "Rematore con manubrio|Low row"}, {"group": "Dorso", "exercise": "Rematore con manubrio", "sets": "4", "reps": "8", "weight": "34", "video_query": "rematore con manubrio esecuzione", "variants": "Rematore con bilanciere|Low row"}, {"group": "Tricipiti", "exercise": "Dip", "sets": "4", "reps": "12", "weight": "corpo libero", "video_query": "dip tricipiti esecuzione", "variants": "Push down|French press al cavo alto con corda|Panca stretta"}, {"group": "Tricipiti", "exercise": "French press al cavo alto con corda", "sets": "4", "reps": "10", "weight": "30", "video_query": "french press al cavo alto con corda esecuzione", "variants": "French press con manubri|French press al cavo asta presa inversa|Push down"}, {"group": "Tricipiti", "exercise": "French press con manubri", "sets": "4", "reps": "10", "weight": "14", "video_query": "french press con manubri esecuzione", "variants": "French press al cavo alto con corda|Push down"}, {"group": "Tricipiti", "exercise": "French press al cavo asta", "sets": "4", "reps": "8", "weight": "presa inversa", "video_query": "french press al cavo asta presa inversa esecuzione", "variants": "French press con manubri|French press corda"}, {"group": "Tricipiti", "exercise": "Push down", "sets": "4", "reps": "10", "weight": "20/15", "video_query": "push down tricipiti esecuzione", "variants": "Dip|French press al cavo alto con corda"}, {"group": "Gambe", "exercise": "Squat con bilanciere", "sets": "5", "reps": "8", "weight": "80", "video_query": "squat con bilanciere esecuzione", "variants": "Squat 90kg note|Leg press|Stacchi a gambe tese"}, {"group": "Gambe", "exercise": "Leg press", "sets": "5", "reps": "8", "weight": "120", "video_query": "leg press esecuzione", "variants": "Pressa 190kg note|Squat con bilanciere|Affondi"}, {"group": "Gambe", "exercise": "Leg extension", "sets": "5", "reps": "10", "weight": "35", "video_query": "leg extension esecuzione", "variants": "Leg extension 45kg note|Leg curl|Sissy squat"}, {"group": "Gambe", "exercise": "Leg curl", "sets": "5", "reps": "10", "weight": "35", "video_query": "leg curl esecuzione", "variants": "Leg curl 30kg note|Stacchi a gambe tese|Leg curl seated"}, {"group": "Gambe", "exercise": "Abductor machine", "sets": "4", "reps": "12", "weight": "65", "video_query": "abductor machine esecuzione", "variants": "Glute machine|Cable hip abduction|Monster walk"}, {"group": "Gambe", "exercise": "Stacchi a gambe tese", "sets": "5", "reps": "8", "weight": "60 note", "video_query": "stacchi a gambe tese esecuzione", "variants": "Romanian deadlift|Leg curl|Good morning"}, {"group": "Addome", "exercise": "Crunch con fermo", "sets": "4", "reps": "30", "weight": "corpo libero", "video_query": "crunch addome esecuzione", "variants": "Addome completo|Leg raises|Side to side"}, {"group": "Addome", "exercise": "Addome completo", "sets": "3", "reps": "12", "weight": "corpo libero", "video_query": "addome completo esercizio", "variants": "Crunch|Leg raises|Plank"}, {"group": "Addome", "exercise": "Leg raises", "sets": "3", "reps": "15", "weight": "corpo libero", "video_query": "leg raises esecuzione", "variants": "Crunch|Plank|Reverse crunch"}, {"group": "Addome", "exercise": "Plank", "sets": "3", "reps": "1 min", "weight": "corpo libero", "video_query": "plank esecuzione", "variants": "Side plank|Body saw|RKC plank"}, {"group": "Addome", "exercise": "Side to side", "sets": "3", "reps": "20 per lato", "weight": "corpo libero", "video_query": "side to side addome esecuzione", "variants": "Russian twist|Crunch|Plank"}, {"group": "Polpacci", "exercise": "Calf seduto", "sets": "5", "reps": "10", "weight": "15", "video_query": "calf seduto esecuzione", "variants": "Calf in piedi|Calf su pressa|Donkey calf raise"}, {"group": "Polpacci", "exercise": "Calf in piedi", "sets": "5", "reps": "10", "weight": "20", "video_query": "calf in piedi esecuzione", "variants": "Calf seduto|Smith calf raise|Calf libero"}];
+    const catalog = [
+      {"group":"Petto","exercise":"Panca piana","sets":"4","reps":"10","weight":"90/100","video_query":"panca piana bilanciere esecuzione","variants":"Panca piana con manubri|Distensioni con manubri|Chest press"},
+      {"group":"Petto","exercise":"Panca inclinata","sets":"5","reps":"10","weight":"24","video_query":"panca inclinata esecuzione","variants":"Panca inclinata machine|Panca inclinata con manubri|Panca inclinata bilanciere"},
+      {"group":"Petto","exercise":"Chest press","sets":"5","reps":"10","weight":"80","video_query":"chest press esecuzione","variants":"Pectoral|Panca con manubri|Distensioni con manubri"},
+      {"group":"Petto","exercise":"Croci ai cavi","sets":"4","reps":"15","weight":"15/17.5","video_query":"croci ai cavi esecuzione","variants":"Croci al cavo alto|Croci al cavo basso|Croci"},
+      {"group":"Petto","exercise":"Pectoral","sets":"3","reps":"12","weight":"45","video_query":"pectoral machine esecuzione","variants":"Chest press|Croci ai cavi"},
+      {"group":"Bicipiti","exercise":"Curl con manubri","sets":"4","reps":"10","weight":"14","video_query":"curl con manubri esecuzione","variants":"Curl con asta EZ|Panca scoot|Curl classico"},
+      {"group":"Bicipiti","exercise":"Curl martello al cavo basso","sets":"5","reps":"10","weight":"12","video_query":"curl martello al cavo basso esecuzione","variants":"Martelli con manubri|Manubrio zeta|Hammer curl rope"},
+      {"group":"Bicipiti","exercise":"Panca scoot","sets":"4","reps":"10","weight":"30","video_query":"panca scoot curl esecuzione","variants":"Curl con asta EZ|Curl con manubri"},
+      {"group":"Spalle","exercise":"Spinte con manubri","sets":"5","reps":"12","weight":"30/20 note","video_query":"spinte con manubri spalle esecuzione","variants":"Shoulder press|Military press|Lento avanti"},
+      {"group":"Spalle","exercise":"Shoulder press","sets":"4","reps":"5+5+5","weight":"35","video_query":"shoulder press esecuzione","variants":"Military press|Spinte con manubri|Multipower lento avanti"},
+      {"group":"Spalle","exercise":"Alzate laterali","sets":"4","reps":"12","weight":"10","video_query":"alzate laterali esecuzione","variants":"Alzate laterali al cavo basso|Alzate laterali da seduto|Alzate frontali"},
+      {"group":"Spalle","exercise":"Alzate frontali","sets":"4","reps":"12","weight":"17.5","video_query":"alzate frontali esecuzione","variants":"Alzate laterali|Alzate al mento"},
+      {"group":"Spalle","exercise":"Alzate al mento","sets":"4","reps":"10","weight":"17.5","video_query":"alzate al mento esecuzione","variants":"Alzate frontali|Rematore verticale"},
+      {"group":"Spalle","exercise":"Military press","sets":"4","reps":"8","weight":"18","video_query":"military press esecuzione","variants":"Shoulder press|Spinte con manubri|Lento avanti"},
+      {"group":"Dorso","exercise":"Lat machine","sets":"5","reps":"10","weight":"60/70","video_query":"lat machine esecuzione","variants":"Lat machine con triangolo|Lat machine inversa|Pull down"},
+      {"group":"Dorso","exercise":"Trazioni","sets":"5","reps":"5","weight":"corpo libero","video_query":"trazioni esecuzione","variants":"Lat machine|Pull down|Trazioni assistite"},
+      {"group":"Dorso","exercise":"Pulley","sets":"5","reps":"10","weight":"65","video_query":"pulley esecuzione","variants":"Rematore al cavo alto|Low row|Palley 70kg note"},
+      {"group":"Dorso","exercise":"Rematore al cavo alto","sets":"4","reps":"10","weight":"22.5","video_query":"rematore al cavo alto esecuzione","variants":"Pulley|Low row"},
+      {"group":"Dorso","exercise":"Low row","sets":"4","reps":"10","weight":"30","video_query":"low row esecuzione","variants":"Low row su panca|Rematore con manubrio|Rematore macchina"},
+      {"group":"Dorso","exercise":"Low row su panca","sets":"4","reps":"10","weight":"30","video_query":"low row su panca esecuzione","variants":"Low row|Rematore manubrio"},
+      {"group":"Dorso","exercise":"Lat machine inversa","sets":"5","reps":"10","weight":"60","video_query":"lat machine inversa esecuzione","variants":"Lat machine|Lat machine con triangolo"},
+      {"group":"Dorso","exercise":"Rematore con bilanciere","sets":"4","reps":"8","weight":"70","video_query":"rematore con bilanciere esecuzione","variants":"Rematore con manubrio|Low row"},
+      {"group":"Dorso","exercise":"Rematore con manubrio","sets":"4","reps":"8","weight":"34","video_query":"rematore con manubrio esecuzione","variants":"Rematore con bilanciere|Low row"},
+      {"group":"Tricipiti","exercise":"Dip","sets":"4","reps":"12","weight":"corpo libero","video_query":"dip tricipiti esecuzione","variants":"Push down|French press al cavo alto con corda|Panca stretta"},
+      {"group":"Tricipiti","exercise":"French press al cavo alto con corda","sets":"4","reps":"10","weight":"30","video_query":"french press al cavo alto con corda esecuzione","variants":"French press con manubri|French press al cavo asta presa inversa|Push down"},
+      {"group":"Tricipiti","exercise":"French press con manubri","sets":"4","reps":"10","weight":"14","video_query":"french press con manubri esecuzione","variants":"French press al cavo alto con corda|Push down"},
+      {"group":"Tricipiti","exercise":"French press al cavo asta","sets":"4","reps":"8","weight":"presa inversa","video_query":"french press al cavo asta presa inversa esecuzione","variants":"French press con manubri|French press corda"},
+      {"group":"Tricipiti","exercise":"Push down","sets":"4","reps":"10","weight":"20/15","video_query":"push down tricipiti esecuzione","variants":"Dip|French press al cavo alto con corda"},
+      {"group":"Gambe","exercise":"Squat con bilanciere","sets":"5","reps":"8","weight":"80","video_query":"squat con bilanciere esecuzione","variants":"Squat 90kg note|Leg press|Stacchi a gambe tese"},
+      {"group":"Gambe","exercise":"Leg press","sets":"5","reps":"8","weight":"120","video_query":"leg press esecuzione","variants":"Pressa 190kg note|Squat con bilanciere|Affondi"},
+      {"group":"Gambe","exercise":"Leg extension","sets":"5","reps":"10","weight":"35","video_query":"leg extension esecuzione","variants":"Leg extension 45kg note|Leg curl|Sissy squat"},
+      {"group":"Gambe","exercise":"Leg curl","sets":"5","reps":"10","weight":"35","video_query":"leg curl esecuzione","variants":"Leg curl 30kg note|Stacchi a gambe tese|Leg curl seated"},
+      {"group":"Gambe","exercise":"Abductor machine","sets":"4","reps":"12","weight":"65","video_query":"abductor machine esecuzione","variants":"Glute machine|Cable hip abduction|Monster walk"},
+      {"group":"Gambe","exercise":"Stacchi a gambe tese","sets":"5","reps":"8","weight":"60 note","video_query":"stacchi a gambe tese esecuzione","variants":"Romanian deadlift|Leg curl|Good morning"},
+      {"group":"Addome","exercise":"Crunch con fermo","sets":"4","reps":"30","weight":"corpo libero","video_query":"crunch addome esecuzione","variants":"Addome completo|Leg raises|Side to side"},
+      {"group":"Addome","exercise":"Addome completo","sets":"3","reps":"12","weight":"corpo libero","video_query":"addome completo esercizio","variants":"Crunch|Leg raises|Plank"},
+      {"group":"Addome","exercise":"Leg raises","sets":"3","reps":"15","weight":"corpo libero","video_query":"leg raises esecuzione","variants":"Crunch|Plank|Reverse crunch"},
+      {"group":"Addome","exercise":"Plank","sets":"3","reps":"1 min","weight":"corpo libero","video_query":"plank esecuzione","variants":"Side plank|Body saw|RKC plank"},
+      {"group":"Addome","exercise":"Side to side","sets":"3","reps":"20 per lato","weight":"corpo libero","video_query":"side to side addome esecuzione","variants":"Russian twist|Crunch|Plank"},
+      {"group":"Polpacci","exercise":"Calf seduto","sets":"5","reps":"10","weight":"15","video_query":"calf seduto esecuzione","variants":"Calf in piedi|Calf su pressa|Donkey calf raise"},
+      {"group":"Polpacci","exercise":"Calf in piedi","sets":"5","reps":"10","weight":"20","video_query":"calf in piedi esecuzione","variants":"Calf seduto|Smith calf raise|Calf libero"}
+    ];
+
     const workoutByDay = {
-      1: ['Panca piana','Panca inclinata','Chest press','Croci ai cavi','Curl con manubri','Curl martello al cavo basso','Panca scoot'],
-      2: ['Lat machine','Trazioni','Pulley','Rematore al cavo alto','Low row'],
-      3: ['Squat con bilanciere','Leg press','Leg extension','Leg curl','Abductor machine'],
-      4: ['Spinte con manubri','Shoulder press','Alzate laterali','Alzate frontali','Dip','French press al cavo alto con corda','Push down'],
-      5: ['Crunch con fermo','Addome completo','Leg raises','Plank','Calf seduto','Calf in piedi'],
-      6: ['Panca inclinata','Lat machine','Leg curl','Chest press','Low row'],
-      0: ['Plank','Addome completo']
+      1: ['Panca piana', 'Panca inclinata', 'Chest press', 'Croci ai cavi', 'Curl con manubri', 'Curl martello al cavo basso', 'Panca scoot'],
+      2: ['Lat machine', 'Trazioni', 'Pulley', 'Rematore al cavo alto', 'Low row'],
+      3: ['Squat con bilanciere', 'Leg press', 'Leg extension', 'Leg curl', 'Abductor machine'],
+      4: ['Spinte con manubri', 'Shoulder press', 'Alzate laterali', 'Alzate frontali', 'Dip', 'French press al cavo alto con corda', 'Push down'],
+      5: ['Crunch con fermo', 'Addome completo', 'Leg raises', 'Plank', 'Calf seduto', 'Calf in piedi'],
+      6: ['Panca inclinata', 'Lat machine', 'Leg curl', 'Chest press', 'Low row'],
+      0: ['Plank', 'Addome completo']
     };
-    const dayNames = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-    const groups = [...new Set(catalog.map(x => x.group))].sort();
-    const catalogMap = Object.fromEntries(catalog.map(x => [x.exercise, x]));
+
+    const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const groups = [...new Set(catalog.map((x) => x.group))].sort();
+    const catalogMap = Object.fromEntries(catalog.map((x) => [x.exercise, x]));
 
     const state = {
       selectedDay: new Date().getDay(),
@@ -244,24 +659,47 @@
 
     const charts = {};
 
-    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
-    function toNumber(val){ const n = Number(String(val).replace(',', '.')); return Number.isFinite(n) ? n : 0; }
-    function weightFromText(w){
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function toNumber(val) {
+      const n = Number(String(val).replace(',', '.'));
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function weightFromText(w) {
       const s = String(w || '').replace(',', '.');
       const nums = s.match(/\d+(?:\.\d+)?/g);
-      if(!nums) return 0;
-      return nums.map(Number).reduce((a,b)=>a+b,0) / nums.length;
+      if (!nums) return 0;
+      return nums.map(Number).reduce((a, b) => a + b, 0) / nums.length;
     }
-    function videoUrl(q){ return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q); }
-    function imageData(name, group){
-      const hues = {Petto:['00d4ff','7a5cff'], Bicipiti:['7a5cff','ff54c9'], Spalle:['00d4ff','ff54c9'], Dorso:['64e6a3','00d4ff'], Tricipiti:['ff54c9','ff6f8c'], Gambe:['ffb85c','7a5cff'], Addome:['64e6a3','00d4ff'], Polpacci:['ffb85c','00d4ff']};
-      const pair = hues[group] || ['00d4ff','7a5cff'];
-      const text = encodeURIComponent(name);
-      const groupText = encodeURIComponent(group);
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#${pair[0]}"/><stop offset="1" stop-color="#${pair[1]}"/></linearGradient></defs><rect width="400" height="400" rx="36" fill="#091225"/><circle cx="320" cy="70" r="56" fill="url(#g)" opacity=".9"/><rect x="36" y="36" width="328" height="328" rx="28" fill="#111d3b" stroke="url(#g)" opacity=".95"/><path d="M200 120c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32zm-58 152 28-60h60l28 60h-32l-16-34h-20l-16 34h-32z" fill="url(#g)" opacity=".95"/><text x="200" y="315" fill="#eef5ff" font-size="24" font-family="Arial, sans-serif" text-anchor="middle">${text}</text><text x="200" y="345" fill="#b4c5ec" font-size="18" font-family="Arial, sans-serif" text-anchor="middle">${groupText}</text></svg>`;
-      return 'data:image/svg+xml;utf8,' + svg;
+
+    function videoUrl(q) {
+      return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
     }
-    function normalizeExercise(row){
+
+    function imageData(name, group) {
+      const hues = {
+        Petto: ['00d4ff', '7a5cff'],
+        Bicipiti: ['7a5cff', 'ff54c9'],
+        Spalle: ['00d4ff', 'ff54c9'],
+        Dorso: ['64e6a3', '00d4ff'],
+        Tricipiti: ['ff54c9', 'ff6f8c'],
+        Gambe: ['ffb85c', '7a5cff'],
+        Addome: ['64e6a3', '00d4ff'],
+        Polpacci: ['ffb85c', '00d4ff'],
+        Custom: ['00d4ff', '64e6a3']
+      };
+
+      const pair = hues[group] || ['00d4ff', '7a5cff'];
+      const safeName = String(name).replace(/[&<>]/g, '');
+      const safeGroup = String(group).replace(/[&<>]/g, '');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#${pair[0]}"/><stop offset="1" stop-color="#${pair[1]}"/></linearGradient></defs><rect width="400" height="400" rx="36" fill="#091225"/><circle cx="320" cy="70" r="56" fill="url(#g)" opacity=".9"/><rect x="36" y="36" width="328" height="328" rx="28" fill="#111d3b" stroke="url(#g)" opacity=".95"/><path d="M200 120c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32zm-58 152 28-60h60l28 60h-32l-16-34h-20l-16 34h-32z" fill="url(#g)" opacity=".95"/><text x="200" y="315" fill="#eef5ff" font-size="24" font-family="Arial, sans-serif" text-anchor="middle">${safeName}</text><text x="200" y="345" fill="#b4c5ec" font-size="18" font-family="Arial, sans-serif" text-anchor="middle">${safeGroup}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    function normalizeExercise(row) {
       return {
         group: row.group,
         exercise: row.exercise,
@@ -272,95 +710,166 @@
         weightText: row.weight,
         video: videoUrl(row.video_query),
         variants: String(row.variants || '').split('|').filter(Boolean),
-        img: imageData(row.exercise, row.group)
+        img: imageData(row.exercise, row.group),
+        done: false
       };
     }
-    function buildPlan(){
+
+    function buildPlan() {
       const plan = {};
-      for(const day in workoutByDay){
-        const items = workoutByDay[day].map(name => normalizeExercise(catalogMap[name]));
-        plan[day] = { name: dayNames[Number(day)], focus: 'Scheda modificabile basata sul PDF', items };
+      for (const day in workoutByDay) {
+        const items = workoutByDay[day].map((name) => normalizeExercise(catalogMap[name]));
+        plan[day] = {
+          name: dayNames[Number(day)],
+          focus: 'Scheda modificabile basata sul PDF',
+          items
+        };
       }
       return plan;
     }
 
-    const $ = id => document.getElementById(id);
+    const $ = (id) => document.getElementById(id);
 
-    function currentDayObj(){ return state.plan[state.selectedDay]; }
-    function allExercises(){ return Object.values(state.plan).flatMap(day => day.items); }
-    function bindViewNav(){
-      document.querySelectorAll('[data-view]').forEach(btn => {
+    function currentDayObj() {
+      return state.plan[state.selectedDay];
+    }
+
+    function allExercises() {
+      return Object.values(state.plan).flatMap((day) => day.items);
+    }
+
+    function showBanner(text) {
+      $('completionBannerText').textContent = text;
+      $('completionBanner').style.display = 'block';
+      clearTimeout(showBanner.timer);
+      showBanner.timer = setTimeout(() => {
+        $('completionBanner').style.display = 'none';
+      }, 1800);
+    }
+
+    function bindViewNav() {
+      document.querySelectorAll('[data-view]').forEach((btn) => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
       });
     }
-    function switchView(view){
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById('view-' + view).classList.add('active');
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+
+    function switchView(view) {
+      document.querySelectorAll('.section').forEach((s) => s.classList.remove('active'));
+      $('view-' + view).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
     }
-    function renderDays(){
-      const labels = ['D','L','M','M','G','V','S'];
+
+    function renderDays() {
+      const labels = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
       $('days').innerHTML = '';
+
       labels.forEach((l, i) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'day-btn' + (i === state.selectedDay ? ' active' : '');
         b.textContent = l;
-        b.addEventListener('click', () => { state.selectedDay = i; refreshAll(); });
+        b.addEventListener('click', () => {
+          state.selectedDay = i;
+          refreshAll();
+        });
         $('days').appendChild(b);
       });
     }
-    function cardHtml(item,index,ref){ return `<div class="exercise-card"><div class="exercise-head"><img class="thumb" src="${item.img}" alt="${item.exercise}"><div><h4>${item.exercise}</h4><div class="exercise-meta">${item.group} · ${item.sets} serie · ${item.reps} rep · ${item.weight ? item.weight + ' kg' : item.weightText}</div></div></div><div class="exercise-actions"><button class="btn ghost open-edit" type="button" data-ref="${ref}" data-index="${index}">Apri e modifica</button><button class="btn done-btn" type="button" data-mark="done" data-ref="${ref}" data-index="${index}">✓ Fatto</button><button class="btn skip-btn" type="button" data-mark="skip" data-ref="${ref}" data-index="${index}">× Alternativa</button><a class="btn ghost" target="_blank" rel="noopener noreferrer" href="${item.video}">Video</a></div></div>`; }
-function renderToday(){
+
+    function cardHtml(item, index, ref) {
+      const doneClass = item.done ? ' is-done' : '';
+      return `
+        <div class="exercise-card">
+          <div class="exercise-head">
+            <img class="thumb" src="${item.img}" alt="${item.exercise}" />
+            <div>
+              <h4>${item.exercise}</h4>
+              <div class="exercise-meta">${item.group} · ${item.sets} serie · ${item.reps} rep · ${item.weight ? item.weight + ' kg' : item.weightText}</div>
+            </div>
+          </div>
+          <div class="exercise-actions">
+            <button class="btn ghost" type="button" onclick="openEditor('${ref}', ${index})">Apri e modifica</button>
+            <button class="btn done-btn${doneClass}" type="button" onclick="markDone('${ref}', ${index}, this)">✓ Fatto</button>
+            <button class="btn skip-btn" type="button" onclick="openAlternative('${ref}', ${index})">× Alternativa</button>
+            <a class="btn ghost" target="_blank" rel="noopener noreferrer" href="${item.video}">Video</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderToday() {
       const day = currentDayObj();
       $('todayChip').textContent = state.selectedDay === new Date().getDay() ? 'Oggi' : 'Anteprima';
       $('todayTitle').textContent = day.name + ' · Allenamento';
       $('todayFocus').textContent = day.focus;
       $('todayList').innerHTML = day.items.map((item, i) => cardHtml(item, i, 'today')).join('');
     }
-    function renderPlan(){
+
+    function renderPlan() {
       $('planList').innerHTML = Object.entries(state.plan).map(([day, obj]) => `
         <div class="card">
           <h3>${obj.name}</h3>
           <p class="muted">${obj.focus}</p>
           <div class="list">${obj.items.map((item, i) => cardHtml(item, i, day)).join('')}</div>
-          <div class="center" style="margin-top:12px;"><button class="btn alt add-day-btn" type="button" data-day="${day}">+ Aggiungi esercizio</button></div>
-        </div>`).join('');
-    }
-    function renderLibrary(){
-      const q = $('searchInput').value.toLowerCase().trim();
-      const rows = catalog.filter(r => !q || r.exercise.toLowerCase().includes(q) || r.group.toLowerCase().includes(q) || String(r.variants).toLowerCase().includes(q));
-      $('libraryList').innerHTML = rows.map(r => {
-        const item = normalizeExercise(r);
-        return `<div class="exercise-card"><div class="exercise-head"><img class="thumb" src="${item.img}" alt="${item.exercise}"><div><h4>${item.exercise}</h4><div class="exercise-meta">${item.group} · ${item.sets} serie · ${item.reps} rep · ${r.weight}</div></div></div><div class="exercise-actions"><button class="btn ghost quick-add" type="button" data-name="${encodeURIComponent(item.exercise)}">Aggiungi al giorno</button><a class="btn ghost" target="_blank" rel="noopener noreferrer" href="${item.video}">Video</a></div></div>`;
-      }).join('');
-    }
-    function bindDynamic(){
-      document.querySelectorAll('.open-edit').forEach(btn => {
-        btn.addEventListener('click', () => openEditor(btn.dataset.editable, Number(btn.dataset.index)));
-      });
-      document.querySelectorAll('.add-day-btn').forEach(btn => {
+          <div class="center" style="margin-top: 12px;">
+            <button class="btn alt add-day-btn" type="button" data-day="${day}">+ Aggiungi esercizio</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.add-day-btn').forEach((btn) => {
         btn.addEventListener('click', () => addExercisePrompt(Number(btn.dataset.day)));
       });
-      document.querySelectorAll('.quick-add').forEach(btn => {
+    }
+
+    function renderLibrary() {
+      const q = $('searchInput').value.toLowerCase().trim();
+      const rows = catalog.filter((r) => {
+        return !q || r.exercise.toLowerCase().includes(q) || r.group.toLowerCase().includes(q) || String(r.variants).toLowerCase().includes(q);
+      });
+
+      $('libraryList').innerHTML = rows.map((r) => {
+        const item = normalizeExercise(r);
+        return `
+          <div class="exercise-card">
+            <div class="exercise-head">
+              <img class="thumb" src="${item.img}" alt="${item.exercise}" />
+              <div>
+                <h4>${item.exercise}</h4>
+                <div class="exercise-meta">${item.group} · ${item.sets} serie · ${item.reps} rep · ${r.weight}</div>
+              </div>
+            </div>
+            <div class="exercise-actions">
+              <button class="btn ghost quick-add" type="button" data-name="${encodeURIComponent(item.exercise)}">Aggiungi al giorno</button>
+              <a class="btn ghost" target="_blank" rel="noopener noreferrer" href="${item.video}">Video</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.quick-add').forEach((btn) => {
         btn.addEventListener('click', () => addByName(decodeURIComponent(btn.dataset.name), state.selectedDay));
       });
     }
-    function addByName(name, day){
+
+    function addByName(name, day) {
       const source = catalogMap[name];
-      if(!source) return;
+      if (!source) return;
       state.plan[day].items.push(normalizeExercise(source));
       refreshAll();
       switchView('today');
     }
-    function addExercisePrompt(day){
+
+    function addExercisePrompt(day) {
       const first = catalog[0].exercise;
       const name = prompt('Scrivi il nome esatto di un esercizio del PDF oppure lascia vuoto per un esercizio custom.', first);
-      if(name === null) return;
-      if(name.trim() && catalogMap[name.trim()]) {
+      if (name === null) return;
+
+      if (name.trim() && catalogMap[name.trim()]) {
         addByName(name.trim(), day);
         return;
       }
+
       state.plan[day].items.push({
         group: 'Custom',
         exercise: name.trim() || 'Nuovo esercizio',
@@ -370,16 +879,20 @@ function renderToday(){
         baseline: 0,
         weightText: '0',
         video: videoUrl('esercizio palestra esecuzione'),
-        variants: catalog.slice(0,8).map(x => x.exercise),
-        img: imageData(name.trim() || 'Nuovo esercizio', 'Custom')
+        variants: catalog.slice(0, 8).map((x) => x.exercise),
+        img: imageData(name.trim() || 'Nuovo esercizio', 'Custom'),
+        done: false
       });
+
       refreshAll();
     }
-    function locateRef(ref, index){
-      if(ref === 'today') return currentDayObj().items[index];
+
+    function locateRef(ref, index) {
+      if (ref === 'today') return currentDayObj().items[index];
       return state.plan[ref].items[index];
     }
-    function openEditor(ref, index){
+
+    function openEditor(ref, index) {
       const item = clone(locateRef(ref, index));
       state.editing = { ref, index };
       $('modalTitle').textContent = item.exercise;
@@ -391,16 +904,26 @@ function renderToday(){
       $('fieldSets').value = item.sets;
       $('fieldReps').value = item.reps;
       $('fieldWeight').value = item.weight;
-      $('fieldGroup').innerHTML = ['Custom', ...groups].map(g => `<option ${g===item.group?'selected':''}>${g}</option>`).join('');
-      $('fieldSwap').innerHTML = catalog.map(r => `<option value="${r.exercise}" ${r.exercise===item.exercise?'selected':''}>${r.exercise}</option>`).join('');
-      $('variantList').innerHTML = item.variants.map(v => `<button class="variant-btn" type="button" data-variant="${encodeURIComponent(v)}">${v}</button>`).join('');
-      document.querySelectorAll('[data-variant]').forEach(btn => btn.addEventListener('click', () => swapCurrentExercise(decodeURIComponent(btn.dataset.variant))));
+      $('fieldGroup').innerHTML = ['Custom', ...groups].map((g) => `<option ${g === item.group ? 'selected' : ''}>${g}</option>`).join('');
+      $('fieldSwap').innerHTML = catalog.map((r) => `<option value="${r.exercise}" ${r.exercise === item.exercise ? 'selected' : ''}>${r.exercise}</option>`).join('');
+      $('variantList').innerHTML = item.variants.map((v) => `<button class="variant-btn" type="button" data-variant="${encodeURIComponent(v)}">${v}</button>`).join('');
+
+      document.querySelectorAll('[data-variant]').forEach((btn) => {
+        btn.addEventListener('click', () => swapCurrentExercise(decodeURIComponent(btn.dataset.variant)));
+      });
+
       $('overlay').classList.add('active');
       $('editorModal').classList.add('active');
     }
-    function closeEditor(){ $('overlay').classList.remove('active'); $('editorModal').classList.remove('active'); state.editing = null; }
-    function saveExercise(){
-      if(!state.editing) return;
+
+    function closeEditor() {
+      $('overlay').classList.remove('active');
+      $('editorModal').classList.remove('active');
+      state.editing = null;
+    }
+
+    function saveExercise() {
+      if (!state.editing) return;
       const item = locateRef(state.editing.ref, state.editing.index);
       item.exercise = $('fieldName').value.trim() || item.exercise;
       item.sets = toNumber($('fieldSets').value) || item.sets;
@@ -411,47 +934,75 @@ function renderToday(){
       item.video = videoUrl(item.exercise + ' esecuzione');
       closeEditor();
       refreshAll();
+      showBanner('Modifiche salvate');
     }
-    function swapCurrentExercise(name){
+
+    function swapCurrentExercise(name) {
       const source = catalogMap[name];
-      if(!state.editing || !source) return;
+      if (!state.editing || !source) return;
       const replacement = normalizeExercise(source);
       const target = locateRef(state.editing.ref, state.editing.index);
       Object.assign(target, replacement);
       closeEditor();
       refreshAll();
+      showBanner('Esercizio sostituito');
     }
-    function swapFromSelect(){ swapCurrentExercise($('fieldSwap').value); }
-    function removeExercise(){
-      if(!state.editing) return;
+
+    function swapFromSelect() {
+      swapCurrentExercise($('fieldSwap').value);
+    }
+
+    function removeExercise() {
+      if (!state.editing) return;
       const { ref, index } = state.editing;
       const arr = ref === 'today' ? currentDayObj().items : state.plan[ref].items;
       arr.splice(index, 1);
       closeEditor();
       refreshAll();
+      showBanner('Esercizio rimosso');
     }
-    function computeStats(){
+
+    function markDone(ref, index, btn) {
+      const item = locateRef(ref, index);
+      item.done = !item.done;
+      if (btn) btn.classList.toggle('is-done', item.done);
+      showBanner(item.done ? 'Esercizio completato' : 'Esercizio rimesso da fare');
+      renderCharts();
+    }
+
+    function openAlternative(ref, index) {
+      openEditor(ref, index);
+      showBanner('Scegli una alternativa dal menu o dalle varianti');
+    }
+
+    function computeStats() {
       const all = allExercises();
-      const weighted = all.filter(x => x.baseline > 0 || x.weight > 0);
-      let progressSum = 0, progressCount = 0, growth = 0, volume = 0;
+      const weighted = all.filter((x) => x.baseline > 0 || x.weight > 0);
+      let progressSum = 0;
+      let progressCount = 0;
+      let growth = 0;
+      let volume = 0;
       const groupVolume = {};
       const dayVolume = dayNames.map(() => 0);
+
       Object.entries(state.plan).forEach(([day, obj]) => {
-        obj.items.forEach(item => {
+        obj.items.forEach((item) => {
           const v = (toNumber(item.weight) || 0) * (toNumber(item.sets) || 0);
           dayVolume[Number(day)] += v;
           volume += v;
           groupVolume[item.group] = (groupVolume[item.group] || 0) + v;
         });
       });
-      weighted.forEach(item => {
-        if(item.baseline > 0) {
+
+      weighted.forEach((item) => {
+        if (item.baseline > 0) {
           const p = ((item.weight - item.baseline) / item.baseline) * 100;
           progressSum += p;
           progressCount += 1;
-          if(p > 0) growth += 1;
+          if (p > 0) growth += 1;
         }
       });
+
       return {
         avgProgress: progressCount ? progressSum / progressCount : 0,
         growth,
@@ -461,11 +1012,13 @@ function renderToday(){
         dayVolume
       };
     }
-    function colorList(n){
-      const base = ['#00d4ff','#7a5cff','#ff54c9','#64e6a3','#ffb85c','#52e3ff','#c06bff','#ff7ca0'];
-      return Array.from({length:n}, (_,i) => base[i % base.length]);
+
+    function colorList(n) {
+      const base = ['#00d4ff', '#7a5cff', '#ff54c9', '#64e6a3', '#ffb85c', '#52e3ff', '#c06bff', '#ff7ca0'];
+      return Array.from({ length: n }, (_, i) => base[i % base.length]);
     }
-    function renderCharts(){
+
+    function renderCharts() {
       const s = computeStats();
       $('statProgress').textContent = s.avgProgress.toFixed(1) + '%';
       $('statSessions').textContent = String(state.sessions);
@@ -473,44 +1026,98 @@ function renderToday(){
       $('statVolume').textContent = Math.round(s.volume);
       $('analysisNote').innerHTML = `La scheda corrente usa i carichi medi letti dal PDF come baseline iniziale e confronta ogni esercizio con il valore attuale. Se modifichi peso, serie o esercizio, i grafici si aggiornano subito. Usa l'editor per fare cambi controllati e progressivi.`;
 
-      Object.values(charts).forEach(ch => ch && ch.destroy && ch.destroy());
-      const list = currentDayObj().items.slice(0,8);
+      Object.values(charts).forEach((ch) => ch && ch.destroy && ch.destroy());
+
+      const list = currentDayObj().items.slice(0, 8);
+
       charts.weights = new Chart($('chartWeights'), {
         type: 'bar',
-        data: { labels: list.map(x => x.exercise), datasets: [{ data: list.map(x => x.weight), backgroundColor: colorList(list.length), borderRadius: 10 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#eef5ff' } }, y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } } } }
+        data: {
+          labels: list.map((x) => x.exercise),
+          datasets: [{ data: list.map((x) => x.weight), backgroundColor: colorList(list.length), borderRadius: 10 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#eef5ff' } },
+            y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } }
+          }
+        }
       });
-      const gv = Object.entries(s.groupVolume).filter(([,v]) => v > 0);
+
+      const gv = Object.entries(s.groupVolume).filter(([, v]) => v > 0);
+
       charts.groups = new Chart($('chartGroups'), {
         type: 'pie',
-        data: { labels: gv.map(x => x[0]), datasets: [{ data: gv.map(x => Math.round(x[1])), backgroundColor: colorList(gv.length) }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#eef5ff' }, position: 'right' } } }
+        data: {
+          labels: gv.map((x) => x[0]),
+          datasets: [{ data: gv.map((x) => Math.round(x[1])), backgroundColor: colorList(gv.length) }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#eef5ff' }, position: 'right' } }
+        }
       });
+
       charts.week = new Chart($('chartWeek'), {
         type: 'line',
-        data: { labels: dayNames, datasets: [{ label: 'Volume', data: s.dayVolume, borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,.16)', fill: true, tension: .34 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#eef5ff' } }, y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } } } }
+        data: {
+          labels: dayNames,
+          datasets: [{ label: 'Volume', data: s.dayVolume, borderColor: '#00d4ff', backgroundColor: 'rgba(0,212,255,.16)', fill: true, tension: 0.34 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#eef5ff' } },
+            y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } }
+          }
+        }
       });
+
       charts.compare = new Chart($('chartCompare'), {
         type: 'bar',
-        data: { labels: list.map(x => x.exercise), datasets: [
-          { label: 'Baseline', data: list.map(x => x.baseline), backgroundColor: 'rgba(122,92,255,.48)', borderRadius: 10 },
-          { label: 'Attuale', data: list.map(x => x.weight), backgroundColor: 'rgba(0,212,255,.82)', borderRadius: 10 }
-        ] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#eef5ff' } } }, scales: { x: { ticks: { color: '#eef5ff' } }, y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } } } }
+        data: {
+          labels: list.map((x) => x.exercise),
+          datasets: [
+            { label: 'Baseline', data: list.map((x) => x.baseline), backgroundColor: 'rgba(122,92,255,.48)', borderRadius: 10 },
+            { label: 'Attuale', data: list.map((x) => x.weight), backgroundColor: 'rgba(0,212,255,.82)', borderRadius: 10 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#eef5ff' } } },
+          scales: {
+            x: { ticks: { color: '#eef5ff' } },
+            y: { beginAtZero: true, ticks: { color: '#eef5ff' }, grid: { color: 'rgba(255,255,255,.08)' } }
+          }
+        }
       });
     }
-    function refreshAll(){
+
+    function refreshAll() {
       renderDays();
       renderToday();
       renderPlan();
       renderLibrary();
-      bindDynamic();
       renderCharts();
     }
 
-    $('searchInput').addEventListener('input', () => { renderLibrary(); bindDynamic(); });
-    $('completeBtn').addEventListener('click', () => { state.sessions += 1; renderCharts(); });
+    window.openEditor = openEditor;
+    window.markDone = markDone;
+    window.openAlternative = openAlternative;
+
+    $('searchInput').addEventListener('input', () => renderLibrary());
+    $('completeBtn').addEventListener('click', () => {
+      state.sessions += 1;
+      renderCharts();
+      showBanner('Sessione segnata');
+    });
     $('addTodayBtn').addEventListener('click', () => addExercisePrompt(state.selectedDay));
     $('addPlanBtn').addEventListener('click', () => addExercisePrompt(state.selectedDay));
     $('closeModalBtn').addEventListener('click', closeEditor);
@@ -518,7 +1125,10 @@ function renderToday(){
     $('saveExerciseBtn').addEventListener('click', saveExercise);
     $('swapExerciseBtn').addEventListener('click', swapFromSelect);
     $('removeExerciseBtn').addEventListener('click', removeExercise);
-    $('themeInfoBtn').addEventListener('click', () => alert('Questa versione punta su funzioni reali: modifica esercizi, cambio esercizio, grafici basati sulla scheda e immagini generate per ogni card.'));
+    $('themeInfoBtn').addEventListener('click', () => {
+      alert('Questa versione punta su funzioni reali: modifica esercizi, cambio esercizio, grafici basati sulla scheda e immagini generate per ogni card.');
+    });
+
     bindViewNav();
     refreshAll();
   </script>
