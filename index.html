@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gym Tracker Smart</title>
+  <title>LD Fitness</title>
+  <link rel="icon" type="image/png" href="IMG_0700.PNG" />
+  <link rel="apple-touch-icon" href="IMG_0700.PNG" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a1326" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&f[]=clash-display@500,600,700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <style>
@@ -78,14 +82,20 @@
     }
 
     .logo {
-      width: 42px;
-      height: 42px;
+      width: 46px;
+      height: 46px;
       border-radius: 14px;
       display: grid;
       place-items: center;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--pink));
+      overflow: hidden;
+      background: #0a1326;
       box-shadow: var(--shadow);
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     h1,
@@ -442,10 +452,10 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo">G</div>
+      <div class="logo"><img src="IMG_0700.PNG" alt="LD Fitness" /></div>
       <div>
-        <h1>Gym Tracker Smart</h1>
-        <div class="sub">Scheda modificabile basata sul tuo PDF</div>
+        <h1>LD Fitness</h1>
+        <div class="sub">Training // Strength // Results</div>
       </div>
     </div>
     <button class="btn ghost" id="themeInfoBtn" type="button">Modalità smart</button>
@@ -643,7 +653,7 @@
   <script>
 
 
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOjm9C7SDAKXDvQfRLsoL6PyZ4hyxWRdi4ZcCd_PfxKyxR7XL1GOZeV8jdzkbNUy6uQA/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVzw0vzbnW_SL5reJmJ1eV613exBS560cOjzR6ob9P-WKG66xOYCpnjcdMG5jxxW8dIQ/exec';
     const catalog = [
       {"group":"Petto","exercise":"Panca piana","sets":"4","reps":"10","weight":"90/100","video_query":"panca piana bilanciere esecuzione","variants":"Panca piana con manubri|Distensioni con manubri|Chest press"},
       {"group":"Petto","exercise":"Panca inclinata","sets":"5","reps":"10","weight":"24","video_query":"panca inclinata esecuzione","variants":"Panca inclinata machine|Panca inclinata con manubri|Panca inclinata bilanciere"},
@@ -1105,7 +1115,7 @@
       const repsDone = $('logReps').value.trim() || item.reps;
       const setsDone = toNumber($('logSets').value) || item.sets;
 
-      state.logs.unshift({
+      const entry = {
         id: Date.now() + '-' + Math.random().toString(36).slice(2, 8),
         date: new Date().toISOString(),
         day: dayNames[state.selectedDay],
@@ -1118,7 +1128,9 @@
         reps: repsDone,
         sets: setsDone,
         note: $('logNote').value.trim()
-      });
+      };
+      state.logs.unshift(entry);
+      syncLogToSheet(entry);
 
       // il peso realmente sollevato diventa il nuovo riferimento per i grafici
       if (weightDone > 0) item.weight = weightDone;
@@ -1127,7 +1139,7 @@
       closeLogModal();
       saveState();
       refreshAll();
-      showBanner('Serie registrata');
+      showBanner('Serie registrata e inviata al foglio');
     }
 
     function renderHistory() {
@@ -1162,6 +1174,7 @@
       state.logs = state.logs.filter((l) => l.id !== id);
       saveState();
       renderHistory();
+      deleteLogFromSheet(id);
     }
 
     function exportHistoryCsv() {
@@ -1308,6 +1321,59 @@
       });
     }
 
+    // ==== SINCRONIZZAZIONE CON GOOGLE SHEET ====
+    // Il foglio Google è la fonte condivisa tra dispositivi; localStorage resta
+    // come copia veloce/offline. Ad ogni avvio scarichiamo lo storico dal foglio
+    // e lo uniamo a quello locale (senza duplicati, per id).
+    let syncStatus = 'idle'; // idle | syncing | error
+
+    async function postToSheet(payload) {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        return true;
+      } catch (e) {
+        console.warn('Sync verso Google Sheet fallita', e);
+        showBanner('Salvato in locale, ma sync col foglio fallita');
+        return false;
+      }
+    }
+
+    async function syncLogToSheet(log) {
+      return postToSheet({ action: 'addLog', log });
+    }
+
+    async function deleteLogFromSheet(id) {
+      return postToSheet({ action: 'deleteLog', id });
+    }
+
+    async function pullLogsFromSheet() {
+      if (!APPS_SCRIPT_URL) return;
+      syncStatus = 'syncing';
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
+        const data = await res.json();
+        if (data.status !== 'ok' || !Array.isArray(data.logs)) return;
+
+        const byId = new Map(state.logs.map((l) => [String(l.id), l]));
+        data.logs.forEach((remote) => {
+          byId.set(String(remote.id), remote);
+        });
+
+        state.logs = Array.from(byId.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
+        syncStatus = 'idle';
+        saveState();
+        renderHistory();
+        renderCharts();
+      } catch (e) {
+        syncStatus = 'error';
+        console.warn('Lettura da Google Sheet fallita', e);
+      }
+    }
+
     function refreshAll() {
       renderDays();
       renderToday();
@@ -1350,6 +1416,7 @@
     bindViewNav();
     loadState();
     refreshAll();
+    pullLogsFromSheet();
   </script>
 </body>
 </html>
