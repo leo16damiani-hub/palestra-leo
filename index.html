@@ -745,6 +745,95 @@
 
 
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVzw0vzbnW_SL5reJmJ1eV613exBS560cOjzR6ob9P-WKG66xOYCpnjcdMG5jxxW8dIQ/exec';
+    // ==== OMINI STILIZZATI (pittogrammi bianchi/trasparenti tipo macchinari da palestra) ====
+    // Un disegno diverso per ogni gruppo muscolare, generato via codice: niente foto esterne,
+    // quindi niente rischio di link rotti o immagine sbagliata.
+    // NB: dichiarati qui, prima di "state", perché state costruisce subito il piano
+    // e chiama imageData(), che ha bisogno di posesByGroup già pronto.
+    const STICK_STYLE = 'fill="none" stroke="#eef5ff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"';
+
+    const posesByGroup = {
+      Petto: () => `
+        <circle cx="140" cy="186" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M157 190 L236 190" ${STICK_STYLE}/>
+        <path d="M236 190 L252 165 L270 190" ${STICK_STYLE}/>
+        <path d="M192 190 L192 126" ${STICK_STYLE}/>
+        <path d="M150 126 L232 126" ${STICK_STYLE}/>
+        <circle cx="150" cy="126" r="12" fill="#eef5ff" opacity=".85"/>
+        <circle cx="232" cy="126" r="12" fill="#eef5ff" opacity=".85"/>
+      `,
+      Bicipiti: () => `
+        <circle cx="200" cy="132" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M200 149 L200 228" ${STICK_STYLE}/>
+        <path d="M200 228 L182 292" ${STICK_STYLE}/>
+        <path d="M200 228 L218 292" ${STICK_STYLE}/>
+        <path d="M200 168 L178 218" ${STICK_STYLE}/>
+        <path d="M200 168 L226 196 L216 158" ${STICK_STYLE}/>
+        <circle cx="216" cy="158" r="11" fill="#eef5ff" opacity=".85"/>
+      `,
+      Spalle: () => `
+        <circle cx="200" cy="128" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M200 145 L200 224" ${STICK_STYLE}/>
+        <path d="M200 224 L180 292" ${STICK_STYLE}/>
+        <path d="M200 224 L220 292" ${STICK_STYLE}/>
+        <path d="M200 160 L163 108" ${STICK_STYLE}/>
+        <path d="M200 160 L237 108" ${STICK_STYLE}/>
+        <circle cx="163" cy="108" r="11" fill="#eef5ff" opacity=".85"/>
+        <circle cx="237" cy="108" r="11" fill="#eef5ff" opacity=".85"/>
+      `,
+      Dorso: () => `
+        <circle cx="204" cy="146" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M204 163 L214 238" ${STICK_STYLE}/>
+        <path d="M214 238 L252 232" ${STICK_STYLE}/>
+        <path d="M252 232 L250 292" ${STICK_STYLE}/>
+        <path d="M214 238 L200 292" ${STICK_STYLE}/>
+        <path d="M170 108 L232 108" ${STICK_STYLE}/>
+        <path d="M170 108 L207 182" ${STICK_STYLE}/>
+        <path d="M232 108 L207 182" ${STICK_STYLE}/>
+      `,
+      Tricipiti: () => `
+        <circle cx="200" cy="132" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M200 149 L200 226" ${STICK_STYLE}/>
+        <path d="M200 226 L184 291" ${STICK_STYLE}/>
+        <path d="M200 226 L216 291" ${STICK_STYLE}/>
+        <path d="M200 172 L184 216" ${STICK_STYLE}/>
+        <path d="M200 172 L228 178 L233 224" ${STICK_STYLE}/>
+        <circle cx="233" cy="224" r="11" fill="#eef5ff" opacity=".85"/>
+      `,
+      Gambe: () => `
+        <circle cx="196" cy="128" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M196 145 L184 206" ${STICK_STYLE}/>
+        <path d="M184 206 L216 214 L206 282" ${STICK_STYLE}/>
+        <path d="M184 206 L158 218 L172 282" ${STICK_STYLE}/>
+        <path d="M172 148 L220 148" ${STICK_STYLE}/>
+        <circle cx="172" cy="148" r="12" fill="#eef5ff" opacity=".85"/>
+        <circle cx="220" cy="148" r="12" fill="#eef5ff" opacity=".85"/>
+      `,
+      Addome: () => `
+        <circle cx="130" cy="234" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M147 232 Q195 214 232 226" ${STICK_STYLE}/>
+        <path d="M232 226 L250 188 L286 196" ${STICK_STYLE}/>
+        <path d="M170 224 L182 254" ${STICK_STYLE}/>
+      `,
+      Polpacci: () => `
+        <circle cx="200" cy="126" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M200 143 L200 220" ${STICK_STYLE}/>
+        <path d="M200 220 L192 200 M200 220 L208 200" ${STICK_STYLE}/>
+        <path d="M200 220 L192 268" ${STICK_STYLE}/>
+        <path d="M192 268 L206 278 L222 274" ${STICK_STYLE}/>
+      `,
+      Custom: () => `
+        <circle cx="200" cy="130" r="17" fill="#eef5ff" opacity=".92"/>
+        <path d="M200 147 L200 226" ${STICK_STYLE}/>
+        <path d="M200 226 L183 291" ${STICK_STYLE}/>
+        <path d="M200 226 L217 291" ${STICK_STYLE}/>
+        <path d="M200 166 L176 222" ${STICK_STYLE}/>
+        <path d="M200 166 L224 222" ${STICK_STYLE}/>
+        <circle cx="176" cy="222" r="11" fill="#eef5ff" opacity=".85"/>
+        <circle cx="224" cy="222" r="11" fill="#eef5ff" opacity=".85"/>
+      `
+    };
+
     const catalog = [
       {"group":"Petto","exercise":"Panca piana","sets":"4","reps":"10","weight":"90/100","video_query":"panca piana bilanciere esecuzione","variants":"Panca piana con manubri|Distensioni con manubri|Chest press"},
       {"group":"Petto","exercise":"Panca inclinata","sets":"5","reps":"10","weight":"24","video_query":"panca inclinata esecuzione","variants":"Panca inclinata machine|Panca inclinata con manubri|Panca inclinata bilanciere"},
@@ -869,93 +958,6 @@
     function videoUrl(q) {
       return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
     }
-
-    // ==== OMINI STILIZZATI (pittogrammi bianchi/trasparenti tipo macchinari da palestra) ====
-    // Un disegno diverso per ogni gruppo muscolare, generato via codice: niente foto esterne,
-    // quindi niente rischio di link rotti o immagine sbagliata.
-    const STICK_STYLE = 'fill="none" stroke="#eef5ff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"';
-
-    const posesByGroup = {
-      Petto: () => `
-        <circle cx="140" cy="186" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M157 190 L236 190" ${STICK_STYLE}/>
-        <path d="M236 190 L252 165 L270 190" ${STICK_STYLE}/>
-        <path d="M192 190 L192 126" ${STICK_STYLE}/>
-        <path d="M150 126 L232 126" ${STICK_STYLE}/>
-        <circle cx="150" cy="126" r="12" fill="#eef5ff" opacity=".85"/>
-        <circle cx="232" cy="126" r="12" fill="#eef5ff" opacity=".85"/>
-      `,
-      Bicipiti: () => `
-        <circle cx="200" cy="132" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M200 149 L200 228" ${STICK_STYLE}/>
-        <path d="M200 228 L182 292" ${STICK_STYLE}/>
-        <path d="M200 228 L218 292" ${STICK_STYLE}/>
-        <path d="M200 168 L178 218" ${STICK_STYLE}/>
-        <path d="M200 168 L226 196 L216 158" ${STICK_STYLE}/>
-        <circle cx="216" cy="158" r="11" fill="#eef5ff" opacity=".85"/>
-      `,
-      Spalle: () => `
-        <circle cx="200" cy="128" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M200 145 L200 224" ${STICK_STYLE}/>
-        <path d="M200 224 L180 292" ${STICK_STYLE}/>
-        <path d="M200 224 L220 292" ${STICK_STYLE}/>
-        <path d="M200 160 L163 108" ${STICK_STYLE}/>
-        <path d="M200 160 L237 108" ${STICK_STYLE}/>
-        <circle cx="163" cy="108" r="11" fill="#eef5ff" opacity=".85"/>
-        <circle cx="237" cy="108" r="11" fill="#eef5ff" opacity=".85"/>
-      `,
-      Dorso: () => `
-        <circle cx="204" cy="146" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M204 163 L214 238" ${STICK_STYLE}/>
-        <path d="M214 238 L252 232" ${STICK_STYLE}/>
-        <path d="M252 232 L250 292" ${STICK_STYLE}/>
-        <path d="M214 238 L200 292" ${STICK_STYLE}/>
-        <path d="M170 108 L232 108" ${STICK_STYLE}/>
-        <path d="M170 108 L207 182" ${STICK_STYLE}/>
-        <path d="M232 108 L207 182" ${STICK_STYLE}/>
-      `,
-      Tricipiti: () => `
-        <circle cx="200" cy="132" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M200 149 L200 226" ${STICK_STYLE}/>
-        <path d="M200 226 L184 291" ${STICK_STYLE}/>
-        <path d="M200 226 L216 291" ${STICK_STYLE}/>
-        <path d="M200 172 L184 216" ${STICK_STYLE}/>
-        <path d="M200 172 L228 178 L233 224" ${STICK_STYLE}/>
-        <circle cx="233" cy="224" r="11" fill="#eef5ff" opacity=".85"/>
-      `,
-      Gambe: () => `
-        <circle cx="196" cy="128" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M196 145 L184 206" ${STICK_STYLE}/>
-        <path d="M184 206 L216 214 L206 282" ${STICK_STYLE}/>
-        <path d="M184 206 L158 218 L172 282" ${STICK_STYLE}/>
-        <path d="M172 148 L220 148" ${STICK_STYLE}/>
-        <circle cx="172" cy="148" r="12" fill="#eef5ff" opacity=".85"/>
-        <circle cx="220" cy="148" r="12" fill="#eef5ff" opacity=".85"/>
-      `,
-      Addome: () => `
-        <circle cx="130" cy="234" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M147 232 Q195 214 232 226" ${STICK_STYLE}/>
-        <path d="M232 226 L250 188 L286 196" ${STICK_STYLE}/>
-        <path d="M170 224 L182 254" ${STICK_STYLE}/>
-      `,
-      Polpacci: () => `
-        <circle cx="200" cy="126" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M200 143 L200 220" ${STICK_STYLE}/>
-        <path d="M200 220 L192 200 M200 220 L208 200" ${STICK_STYLE}/>
-        <path d="M200 220 L192 268" ${STICK_STYLE}/>
-        <path d="M192 268 L206 278 L222 274" ${STICK_STYLE}/>
-      `,
-      Custom: () => `
-        <circle cx="200" cy="130" r="17" fill="#eef5ff" opacity=".92"/>
-        <path d="M200 147 L200 226" ${STICK_STYLE}/>
-        <path d="M200 226 L183 291" ${STICK_STYLE}/>
-        <path d="M200 226 L217 291" ${STICK_STYLE}/>
-        <path d="M200 166 L176 222" ${STICK_STYLE}/>
-        <path d="M200 166 L224 222" ${STICK_STYLE}/>
-        <circle cx="176" cy="222" r="11" fill="#eef5ff" opacity=".85"/>
-        <circle cx="224" cy="222" r="11" fill="#eef5ff" opacity=".85"/>
-      `
-    };
 
     function imageData(name, group) {
       const hues = {
