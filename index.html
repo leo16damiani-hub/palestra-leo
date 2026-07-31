@@ -10,7 +10,6 @@
   <meta name="theme-color" content="#0a1326" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&f[]=clash-display@500,600,700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root {
       --bg: #07101f;
@@ -510,11 +509,32 @@
 
     .yt-frame {
       width: 100%;
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 1 / 1;
       border-radius: 16px;
       overflow: hidden;
       background: #0a1326;
       border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+      display: block;
+      text-decoration: none;
+    }
+
+    .yt-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .play-badge-lg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+      color: #fff;
+      background: rgba(6, 12, 25, 0.32);
     }
   </style>
 </head>
@@ -644,9 +664,11 @@
 
       <div class="modal-grid">
         <div>
-          <div class="yt-frame" id="modalVideoPlayer"></div>
+          <a class="yt-frame" id="modalVideo" target="_blank" rel="noopener noreferrer">
+            <img id="modalImage" alt="" />
+            <span class="play-badge-lg">▶</span>
+          </a>
           <div class="actions" style="margin-top: 12px;">
-            <a class="btn" id="modalVideo" target="_blank" rel="noopener noreferrer">Apri su YouTube</a>
             <a class="btn alt" id="modalImages" target="_blank" rel="noopener noreferrer">Immagini</a>
           </div>
         </div>
@@ -897,43 +919,6 @@
       return plan;
     }
 
-    // ==== VIDEO REALE INCORPORATO (YouTube IFrame API, nessuna API key) ====
-    // Usa la funzione ufficiale loadPlaylist({listType:'search', ...}) per mostrare
-    // un video vero di esecuzione dell'esercizio direttamente nel modale.
-    let ytPlayer = null;
-    let ytReady = false;
-    let pendingYtQuery = null;
-
-    function onYouTubeIframeAPIReady() {
-      ytReady = true;
-      ytPlayer = new YT.Player('modalVideoPlayer', {
-        height: '100%',
-        width: '100%',
-        playerVars: { autoplay: 0, rel: 0 },
-        events: {
-          onReady: function () {
-            if (pendingYtQuery) {
-              loadYtSearch(pendingYtQuery);
-              pendingYtQuery = null;
-            }
-          }
-        }
-      });
-    }
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
-
-    function loadYtSearch(query) {
-      if (!ytReady || !ytPlayer || typeof ytPlayer.loadPlaylist !== 'function') {
-        pendingYtQuery = query;
-        return;
-      }
-      try {
-        ytPlayer.loadPlaylist({ listType: 'search', list: query, maxResults: 1 });
-      } catch (e) {
-        console.warn('Player YouTube non disponibile', e);
-      }
-    }
-
     const $ = (id) => document.getElementById(id);
 
     function currentDayObj() {
@@ -1108,7 +1093,8 @@
       const item = clone(locateRef(ref, index));
       state.editing = { ref, index };
       $('modalTitle').textContent = item.exercise;
-      loadYtSearch(item.exercise + ' esecuzione palestra tecnica');
+      $('modalImage').src = item.img;
+      $('modalImage').alt = item.exercise;
       $('modalVideo').href = item.video;
       $('modalImages').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(item.exercise + ' palestra esecuzione');
       $('fieldName').value = item.exercise;
