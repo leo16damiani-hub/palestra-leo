@@ -384,7 +384,7 @@
       bottom: 10px;
       width: min(980px, calc(100vw - 16px));
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 8px;
       padding: 8px;
       border: 1px solid var(--line);
@@ -536,6 +536,22 @@
 
       <div class="list" id="libraryList"></div>
     </section>
+
+    <section class="section" id="view-history">
+      <div class="hero">
+        <div class="chip">Storico</div>
+        <h2>Sessioni registrate</h2>
+        <p class="muted">Ogni volta che premi "Fatto" e compili peso/reps/serie, la sessione finisce qui. Questo è lo storico reale che verrà sincronizzato con Google Sheet.</p>
+      </div>
+
+      <div class="card">
+        <div class="center" style="justify-content: space-between;">
+          <h3>Registri (<span id="historyCount">0</span>)</h3>
+          <button class="btn ghost" type="button" id="exportHistoryBtn">Esporta CSV</button>
+        </div>
+        <div class="list" id="historyList"></div>
+      </div>
+    </section>
   </main>
 
   <div class="overlay" id="overlay"></div>
@@ -584,11 +600,44 @@
     </div>
   </div>
 
+  <div class="modal" id="logModal">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="center" style="justify-content: space-between; margin-bottom: 12px;">
+        <h3 id="logModalTitle">Registra serie</h3>
+        <button class="btn ghost" type="button" id="closeLogModalBtn">Chiudi</button>
+      </div>
+      <p class="muted" id="logModalSub" style="margin-top: -6px;"></p>
+      <div class="field-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div>
+          <label class="note">Peso (kg)</label>
+          <input id="logWeight" type="number" min="0" step="0.5" />
+        </div>
+        <div>
+          <label class="note">Ripetizioni</label>
+          <input id="logReps" placeholder="es. 10" />
+        </div>
+        <div>
+          <label class="note">Serie</label>
+          <input id="logSets" type="number" min="1" step="1" />
+        </div>
+      </div>
+      <div style="margin-top: 10px;">
+        <label class="note">Note (facoltativo)</label>
+        <input id="logNote" placeholder="es. ultima serie a cedimento" />
+      </div>
+      <div class="actions" style="margin-top: 14px; justify-content: flex-start;">
+        <button class="btn" type="button" id="saveLogBtn">Salva e segna fatto</button>
+        <button class="btn ghost" type="button" id="cancelLogBtn">Annulla</button>
+      </div>
+    </div>
+  </div>
+
   <div class="bottom-nav">
     <button class="nav-btn active" type="button" data-view="today">Oggi</button>
     <button class="nav-btn" type="button" data-view="plan">Programma</button>
     <button class="nav-btn" type="button" data-view="analysis">Analisi</button>
     <button class="nav-btn" type="button" data-view="library">Libreria</button>
+    <button class="nav-btn" type="button" data-view="history">Storico</button>
   </div>
 
   <script>
@@ -653,14 +702,52 @@
     const groups = [...new Set(catalog.map((x) => x.group))].sort();
     const catalogMap = Object.fromEntries(catalog.map((x) => [x.exercise, x]));
 
+    const STORAGE_KEY = 'gymTrackerSmart_v1';
+
     const state = {
       selectedDay: new Date().getDay(),
       sessions: 0,
       editing: null,
-      plan: buildPlan()
+      loggingRef: null,
+      plan: buildPlan(),
+      logs: [] // storico reale: {id, date, day, group, exercise, plannedWeight, plannedReps, plannedSets, weight, reps, sets, note}
     };
 
     const charts = {};
+
+    // ==== PERSISTENZA LOCALE (localStorage) ====
+    // Salvataggio "ponte": tiene i dati anche offline/prima della sincronizzazione
+    // con Google Sheet, che verrà aggiunta nel prossimo passo.
+    function saveState() {
+      try {
+        const snapshot = {
+          selectedDay: state.selectedDay,
+          sessions: state.sessions,
+          plan: state.plan,
+          logs: state.logs
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+      } catch (e) {
+        console.warn('Impossibile salvare in locale', e);
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const saved = JSON.parse(raw);
+        if (!saved || !saved.plan) return false;
+        state.selectedDay = saved.selectedDay ?? state.selectedDay;
+        state.sessions = saved.sessions ?? 0;
+        state.plan = saved.plan;
+        state.logs = saved.logs ?? [];
+        return true;
+      } catch (e) {
+        console.warn('Impossibile leggere lo storage locale', e);
+        return false;
+      }
+    }
 
     function clone(obj) {
       return JSON.parse(JSON.stringify(obj));
@@ -773,6 +860,7 @@
         b.textContent = l;
         b.addEventListener('click', () => {
           state.selectedDay = i;
+          saveState();
           refreshAll();
         });
         $('days').appendChild(b);
@@ -859,6 +947,7 @@
       const source = catalogMap[name];
       if (!source) return;
       state.plan[day].items.push(normalizeExercise(source));
+      saveState();
       refreshAll();
       switchView('today');
     }
@@ -887,6 +976,7 @@
         done: false
       });
 
+      saveState();
       refreshAll();
     }
 
@@ -936,6 +1026,7 @@
       item.img = imageData(item.exercise, item.group);
       item.video = videoUrl(item.exercise + ' esecuzione');
       closeEditor();
+      saveState();
       refreshAll();
       showBanner('Modifiche salvate');
     }
@@ -947,6 +1038,7 @@
       const target = locateRef(state.editing.ref, state.editing.index);
       Object.assign(target, replacement);
       closeEditor();
+      saveState();
       refreshAll();
       showBanner('Esercizio sostituito');
     }
@@ -961,21 +1053,134 @@
       const arr = ref === 'today' ? currentDayObj().items : state.plan[ref].items;
       arr.splice(index, 1);
       closeEditor();
+      saveState();
       refreshAll();
       showBanner('Esercizio rimosso');
     }
 
     function markDone(ref, index, btn) {
       const item = locateRef(ref, index);
-      item.done = !item.done;
-      if (btn) btn.classList.toggle('is-done', item.done);
-      showBanner(item.done ? 'Esercizio completato' : 'Esercizio rimesso da fare');
+      if (!item.done) {
+        openLogModal(ref, index);
+        return;
+      }
+      item.done = false;
+      if (btn) btn.classList.remove('is-done');
+      saveState();
       renderCharts();
+      showBanner('Esercizio rimesso da fare');
     }
 
     function openAlternative(ref, index) {
       openEditor(ref, index);
       showBanner('Scegli una alternativa dal menu o dalle varianti');
+    }
+
+    // ==== LOG SERIE (storico reale) ====
+    function openLogModal(ref, index) {
+      const item = locateRef(ref, index);
+      state.loggingRef = { ref, index };
+      $('logModalTitle').textContent = 'Registra: ' + item.exercise;
+      $('logModalSub').textContent = 'Previsto: ' + item.sets + ' serie × ' + item.reps + ' rep' + (item.weight ? ' × ' + item.weight + ' kg' : '');
+      $('logWeight').value = item.weight || '';
+      $('logReps').value = item.reps || '';
+      $('logSets').value = item.sets || '';
+      $('logNote').value = '';
+      $('overlay').classList.add('active');
+      $('logModal').classList.add('active');
+    }
+
+    function closeLogModal() {
+      $('overlay').classList.remove('active');
+      $('logModal').classList.remove('active');
+      state.loggingRef = null;
+    }
+
+    function saveLog() {
+      if (!state.loggingRef) return;
+      const { ref, index } = state.loggingRef;
+      const item = locateRef(ref, index);
+
+      const weightDone = toNumber($('logWeight').value);
+      const repsDone = $('logReps').value.trim() || item.reps;
+      const setsDone = toNumber($('logSets').value) || item.sets;
+
+      state.logs.unshift({
+        id: Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+        date: new Date().toISOString(),
+        day: dayNames[state.selectedDay],
+        group: item.group,
+        exercise: item.exercise,
+        plannedWeight: item.weight,
+        plannedReps: item.reps,
+        plannedSets: item.sets,
+        weight: weightDone,
+        reps: repsDone,
+        sets: setsDone,
+        note: $('logNote').value.trim()
+      });
+
+      // il peso realmente sollevato diventa il nuovo riferimento per i grafici
+      if (weightDone > 0) item.weight = weightDone;
+      item.done = true;
+
+      closeLogModal();
+      saveState();
+      refreshAll();
+      showBanner('Serie registrata');
+    }
+
+    function renderHistory() {
+      $('historyCount').textContent = String(state.logs.length);
+
+      if (!state.logs.length) {
+        $('historyList').innerHTML = '<p class="muted">Ancora nessuna sessione registrata. Vai su "Oggi", apri un esercizio e premi "Fatto" per iniziare a costruire lo storico.</p>';
+        return;
+      }
+
+      $('historyList').innerHTML = state.logs.map((log) => {
+        const d = new Date(log.date);
+        const dateLabel = d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="exercise-card">
+            <div class="exercise-head">
+              <div>
+                <h4>${log.exercise}</h4>
+                <div class="exercise-meta">${dateLabel} · ${log.day} · ${log.group}</div>
+                <div class="exercise-meta">${log.sets} serie × ${log.reps} rep × ${log.weight} kg${log.note ? ' · ' + log.note : ''}</div>
+              </div>
+            </div>
+            <div class="exercise-actions">
+              <button class="btn ghost" type="button" onclick="deleteLog('${log.id}')">Elimina</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteLog(id) {
+      state.logs = state.logs.filter((l) => l.id !== id);
+      saveState();
+      renderHistory();
+    }
+
+    function exportHistoryCsv() {
+      if (!state.logs.length) {
+        showBanner('Nessun dato da esportare');
+        return;
+      }
+      const header = ['data', 'giorno', 'gruppo', 'esercizio', 'peso_previsto', 'reps_previste', 'serie_previste', 'peso_fatto', 'reps_fatte', 'serie_fatte', 'note'];
+      const rows = state.logs.map((l) => [
+        l.date, l.day, l.group, l.exercise, l.plannedWeight, l.plannedReps, l.plannedSets, l.weight, l.reps, l.sets, (l.note || '').replace(/,/g, ';')
+      ]);
+      const csv = [header.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'storico_allenamenti.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function computeStats() {
@@ -1108,31 +1313,42 @@
       renderToday();
       renderPlan();
       renderLibrary();
+      renderHistory();
       renderCharts();
     }
 
     window.openEditor = openEditor;
     window.markDone = markDone;
     window.openAlternative = openAlternative;
+    window.deleteLog = deleteLog;
 
     $('searchInput').addEventListener('input', () => renderLibrary());
     $('completeBtn').addEventListener('click', () => {
       state.sessions += 1;
+      saveState();
       renderCharts();
       showBanner('Sessione segnata');
     });
     $('addTodayBtn').addEventListener('click', () => addExercisePrompt(state.selectedDay));
     $('addPlanBtn').addEventListener('click', () => addExercisePrompt(state.selectedDay));
     $('closeModalBtn').addEventListener('click', closeEditor);
-    $('overlay').addEventListener('click', closeEditor);
+    $('overlay').addEventListener('click', () => {
+      closeEditor();
+      closeLogModal();
+    });
     $('saveExerciseBtn').addEventListener('click', saveExercise);
     $('swapExerciseBtn').addEventListener('click', swapFromSelect);
     $('removeExerciseBtn').addEventListener('click', removeExercise);
+    $('closeLogModalBtn').addEventListener('click', closeLogModal);
+    $('cancelLogBtn').addEventListener('click', closeLogModal);
+    $('saveLogBtn').addEventListener('click', saveLog);
+    $('exportHistoryBtn').addEventListener('click', exportHistoryCsv);
     $('themeInfoBtn').addEventListener('click', () => {
-      alert('Questa versione punta su funzioni reali: modifica esercizi, cambio esercizio, grafici basati sulla scheda e immagini generate per ogni card.');
+      alert('Questa versione salva in locale ogni modifica e registra lo storico reale delle serie fatte (peso, reps, serie) in "Storico".');
     });
 
     bindViewNav();
+    loadState();
     refreshAll();
   </script>
 </body>
