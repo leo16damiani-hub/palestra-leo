@@ -669,7 +669,7 @@
         <div>
           <a class="yt-frame" id="modalVideo" target="_blank" rel="noopener noreferrer">
             <img id="modalImage" alt="" />
-            <span class="play-badge-lg">▶</span>
+            <span class="play-badge-lg" id="modalBadge"></span>
           </a>
           <div class="actions" style="margin-top: 12px;">
             <a class="btn alt" id="modalImages" target="_blank" rel="noopener noreferrer">Immagini</a>
@@ -1061,6 +1061,19 @@
       });
     }
 
+    // Iconcina generica "omino che si allena" per il badge sopra le miniature.
+    function badgeIconSvg(size) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="32" cy="13" r="7" fill="#fff" stroke="none"/>
+        <path d="M32 20 L32 40"/>
+        <path d="M32 40 L21 58"/>
+        <path d="M32 40 L43 58"/>
+        <path d="M17 29 L32 22 L47 29"/>
+        <circle cx="14" cy="26" r="5" fill="#fff" stroke="none"/>
+        <circle cx="50" cy="26" r="5" fill="#fff" stroke="none"/>
+      </svg>`;
+    }
+
     function cardHtml(item, index, ref) {
       const doneClass = item.done ? ' is-done' : '';
       return `
@@ -1068,7 +1081,7 @@
           <div class="exercise-head">
             <button type="button" class="thumb-btn" onclick="openEditor('${ref}', ${index})" aria-label="Apri esercizio e vedi video">
               <img class="thumb" src="${item.img}" alt="${item.exercise}" />
-              <span class="play-badge">▶</span>
+              <span class="play-badge">${badgeIconSvg(26)}</span>
             </button>
             <div>
               <h4>${item.exercise}</h4>
@@ -1189,6 +1202,7 @@
       $('modalImage').src = item.img;
       $('modalImage').alt = item.exercise;
       $('modalVideo').href = item.video;
+      $('modalBadge').innerHTML = badgeIconSvg(44);
       $('modalImages').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(item.exercise + ' palestra esecuzione');
       $('fieldName').value = item.exercise;
       $('fieldSets').value = item.sets;
